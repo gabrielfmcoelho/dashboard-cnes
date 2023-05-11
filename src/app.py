@@ -198,136 +198,146 @@ def grafico_barras(df, tema):
     )
     return fig
 
-app.layout = html.Div(
-    id="app-container",
-    children=[
-        # Banner
-        html.Div(
-            id="banner",
-            className="banner",
-            children=[
-                html.H4("IPS DATALAB", id="banner-title"),
-            ],
-        ),
-        # Coluna da esquerda
-        html.Div(
-            id="left-column",
-            className="four columns",
-            children=[
-                description_card(INTRO_INFO),
-                generate_control_card(CONTROL_INFO, **CONTROL_DATA),
-            ] + [
-                html.Div(
-                    children=["initial child"], id="output-clientside", style={"display": "none"},
+app.layout = dcc.Loading(
+        id="loading-1",
+        children=[
+            html.Div(
+                id="app-container",
+                children=[
+                    # Banner
+                    html.Div(
+                        id="banner",
+                        className="banner",
+                        children=[
+                            html.H4("IPS DATALAB", id="banner-title"),
+                        ],
                     ),
-            ],
-        ),
-        # Coluna da direita
-        html.Div(
-            id="right-column",
-            className="eight columns",
-            children=[
-                html.Br(),
-                html.Br(),
-                # Mapa
-                html.Div(
-                    id="",
-                    children=[
-                        html.B("Mapa do Estado"),
-                        html.Hr(),
-                        dcc.Graph(
-                            id="mapa",
-                            figure=grafico_mapa(df_saude, "score_final", 5.2),
-                        ),
-                    ],
-                ),
-                html.Br(),
-                html.Br(),
-                # Indicadores
-                html.Div(
-                    id="",
-                    children=[
-                        html.B("Indicadores"),
-                        html.Hr(),
-                        html.Div(
-                            id="", className="row",
-                            children=[
-                                html.Div(
-                                    id="",
-                                    className="six columns",
-                                    children=[
-                                        html.Div(
-                                            id="",
-                                            children=[
-                                                html.B("Score Final"),
-                                                html.Hr(),
-                                                html.Div(
-                                                    id="Texto do Score Final",
-                                                    children=[
-                                                        html.P("Carregando..."),
-                                                    ],
-                                                ),
-                                            ],
-                                        ),
-                                    ],
+                    # Coluna da esquerda
+                    html.Div(
+                        id="left-column",
+                        className="four columns",
+                        children=[
+                            description_card(INTRO_INFO),
+                            generate_control_card(CONTROL_INFO, **CONTROL_DATA),
+                        ] + [
+                            html.Div(
+                                children=["initial child"], id="output-clientside", style={"display": "none"},
                                 ),
-                                html.Div(
-                                    id="",
-                                    className="six columns",
-                                    children=[
-                                        html.Div(
-                                            id="",
-                                            children=[
-                                                html.B("Ranking Estadual"),
-                                                html.Hr(),
-                                                html.Div(
-                                                    id="Texto do Ranking Estadual",
-                                                    children=[
-                                                        html.P("Carregando..."),
-                                                    ],
-                                                ),
-                                            ],
-                                        ),
-                                    ],
-                                ),
-                            ],
-                        ),
-                    ],
-                ),
-                html.Br(),
-                html.Br(),
-                # Gráfico de Barras de Municipios
-                html.Div(
-                    id="",
-                    children=[
-                        html.B("Ranking Municipal"),
-                        html.Hr(),
-                        dcc.Graph(
-                            id="barras_municipios",
-                            figure=grafico_barras(df_saude.sort_values(by=['score_final'], ascending=False), "score_final"),
-                        ),
-                    ],
-                ),
-                html.Br(),
-                html.Br(),
-                # Grafico de Correlação de Variáveis
-                html.Div(
-                    id="",
-                    children=[
-                        html.B("Correlação de Variáveis"),
-                        html.Hr(),
-                        dcc.Graph(
-                            id="heatmap",
-                            figure=grafico_correlacao(df_saude[[col for col in df_saude.columns if col in lista_col_numericas]]),
-                        ),
-                    ],
-                ),
-                html.Br(),
-                html.Br(),
-            ],
-        ),
-    ],
-)
+                        ],
+                    ),
+                    # Coluna da direita
+                    html.Div(
+                        id="right-column",
+                        className="eight columns",
+                        children=[
+                            html.Br(),
+                            html.Br(),
+                            # Mapa
+                            html.Div(
+                                id="",
+                                children=[
+                                    html.B("Mapa do Estado"),
+                                    html.Hr(),
+                                    dcc.Graph(
+                                        id="mapa",
+                                        figure=grafico_mapa(df_saude, "score_final", 5.2),
+                                    ),
+                                ],
+                            ),
+                            html.Br(),
+                            html.Br(),
+                            # Indicadores
+                            html.Div(
+                                id="",
+                                children=[
+                                    html.B("Indicadores"),
+                                    html.Hr(),
+                                    html.Div(
+                                        id="", className="row",
+                                        children=[
+                                            html.Div(
+                                                id="",
+                                                className="six columns",
+                                                children=[
+                                                    html.Div(
+                                                        id="",
+                                                        children=[
+                                                            html.B("Score Final"),
+                                                            html.Hr(),
+                                                            html.Div(
+                                                                id="Texto do Score Final",
+                                                                children=[
+                                                                    html.P("Carregando..."),
+                                                                ],
+                                                            ),
+                                                        ],
+                                                    ),
+                                                ],
+                                            ),
+                                            html.Div(
+                                                id="",
+                                                className="six columns",
+                                                children=[
+                                                    html.Div(
+                                                        id="",
+                                                        children=[
+                                                            html.B("Ranking Estadual"),
+                                                            html.Hr(),
+                                                            html.Div(
+                                                                id="Texto do Ranking Estadual",
+                                                                children=[
+                                                                    html.P("Carregando..."),
+                                                                ],
+                                                            ),
+                                                        ],
+                                                    ),
+                                                ],
+                                            ),
+                                        ],
+                                    ),
+                                ],
+                            ),
+                            html.Br(),
+                            html.Br(),
+                            # Gráfico de Barras de Municipios
+                            html.Div(
+                                id="",
+                                children=[
+                                    html.B("Ranking Municipal"),
+                                    html.Hr(),
+                                    dcc.Graph(
+                                        id="barras_municipios",
+                                        figure=grafico_barras(df_saude.sort_values(by=['score_final'], ascending=False), "score_final"),
+                                    ),
+                                ],
+                            ),
+                            html.Br(),
+                            html.Br(),
+                            # Grafico de Correlação de Variáveis
+                            html.Div(
+                                id="",
+                                children=[
+                                    html.B("Correlação de Variáveis"),
+                                    html.Hr(),
+                                    dcc.Graph(
+                                        id="heatmap",
+                                        figure=grafico_correlacao(df_saude[[col for col in df_saude.columns if col in lista_col_numericas]]),
+                                    ),
+                                ],
+                            ),
+                            html.Br(),
+                            html.Br(),
+                        ],
+                    ),
+                ],
+            ),
+        ],
+        type="default",
+        fullscreen=True,
+    )
+
+    
+    
 
 @app.callback([Output('mapa', 'figure'),
                Output('barras_municipios', 'figure'),
