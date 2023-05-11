@@ -333,11 +333,15 @@ app.layout = html.Div(
               [Input('dropdown-select', 'value'),
                Input('dropdown-select-2', 'value'),
                Input('mapa', 'clickData')])
-def update_map(selected_municipio, selected_tema):
+def update_map(selected_municipio, selected_tema, clickData):
     if (selected_municipio is None)or(selected_municipio == 'Todos os Municípios'):
         filtered_df = df_saude
         zoom = 5.2
     elif selected_municipio in lista_municipios:
+        filtered_df = df_saude.loc[df_saude['Municipio'] == selected_municipio]
+        zoom = 8.2
+    if clickData is not None:
+        selected_municipio = clickData['points'][0]['location']
         filtered_df = df_saude.loc[df_saude['Municipio'] == selected_municipio]
         zoom = 8.2
     if (selected_tema is None):
