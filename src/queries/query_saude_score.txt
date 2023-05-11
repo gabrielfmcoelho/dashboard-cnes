@@ -1,0 +1,4 @@
+SELECT
+*
+FROM
+`etl-cnes.CNES_compilado.saude_score`
