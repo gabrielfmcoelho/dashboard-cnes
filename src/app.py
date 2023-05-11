@@ -329,7 +329,10 @@ app.layout = html.Div(
     ],
 )
 
-@app.callback(Output('mapa', 'figure'),
+@app.callback([Output('mapa', 'figure'),
+               Output('barras_municipios', 'figure'),
+               Output('Texto do Score Final', 'children'),
+               Output('Texto do Ranking Estadual', 'children'),],
               [Input('dropdown-select', 'value'),
                Input('dropdown-select-2', 'value'),
                Input('mapa', 'clickData')])
@@ -337,37 +340,28 @@ def update_map(selected_municipio, selected_tema, clickData):
     if (selected_municipio is None)or(selected_municipio == 'Todos os Municípios'):
         filtered_df = df_saude
         zoom = 5.2
-    elif selected_municipio in lista_municipios:
-        filtered_df = df_saude.loc[df_saude['Municipio'] == selected_municipio]
-        zoom = 8.2
+        new_score = [html.P("Indisponível")]
+        rank = [html.P("Indisponível")]
     if clickData is not None:
         selected_municipio = clickData['points'][0]['location']
         filtered_df = df_saude.loc[df_saude['Municipio'] == selected_municipio]
         zoom = 8.2
+        filtered_df = df_saude.loc[df_saude['Municipio'] == selected_municipio]
+        new_score = [html.P(str(filtered_df['score_final'].values[0]))]
+        filtered_df = df_saude.sort_values(by=['score_final'], ascending=False).reset_index(drop=True)
+        rank = [html.P(str(filtered_df.loc[filtered_df['Municipio'] == selected_municipio].index[0]+1) + 'º de ' + str(filtered_df.shape[0]))]
+    elif selected_municipio in lista_municipios:
+        filtered_df = df_saude.loc[df_saude['Municipio'] == selected_municipio]
+        zoom = 8.2
+        filtered_df = df_saude.loc[df_saude['Municipio'] == selected_municipio]
+        new_score = [html.P(str(filtered_df['score_final'].values[0]))]
+        filtered_df = df_saude.sort_values(by=['score_final'], ascending=False).reset_index(drop=True)
+        rank = [html.P(str(filtered_df.loc[filtered_df['Municipio'] == selected_municipio].index[0]+1) + 'º de ' + str(filtered_df.shape[0]))]
     if (selected_tema is None):
         selected_tema = 'score_final'
     new_map = grafico_mapa(filtered_df, selected_tema, zoom)
-    return new_map
-
-@app.callback([Output('Texto do Score Final', 'children')],
-              [Input('dropdown-select', 'value')])
-def update_rank(selected_municipio):
-    if (selected_municipio is None)or(selected_municipio == 'Todos os Municípios'):
-        new_score = [html.P("Indisponível")]
-    elif selected_municipio in lista_municipios:
-        filtered_df = df_saude.loc[df_saude['Municipio'] == selected_municipio]
-        new_score = [html.P(str(filtered_df['score_final'].values[0]))]
-    return new_score
-
-@app.callback([Output('Texto do Ranking Estadual', 'children')],
-                [Input('dropdown-select', 'value')])
-def update_rank(selected_municipio):
-    if (selected_municipio is None)or(selected_municipio == 'Todos os Municípios'):
-        rank = [html.P("Indisponível")]
-    elif selected_municipio in lista_municipios:
-        filtered_df = df_saude.sort_values(by=['score_final'], ascending=False).reset_index(drop=True)
-        rank = [html.P(str(filtered_df.loc[filtered_df['Municipio'] == selected_municipio].index[0]+1) + 'º de ' + str(filtered_df.shape[0]))]
-    return rank
+    new_barras = grafico_barras(df_saude.sort_values(by=[selected_tema], ascending=False), selected_tema)
+    return new_map, new_barras, new_score, rank
 
 #Callback from multidropdown to update heatmap
 @app.callback(Output('heatmap', 'figure'),
@@ -377,15 +371,6 @@ def update_heatmap(selected_vars):
         selected_vars = lista_col_numericas
     new_heatmap = grafico_correlacao(df_saude[selected_vars])
     return new_heatmap
-
-#Callback from dropdown2 to update bar chart
-@app.callback(Output('barras_municipios', 'figure'),
-            [Input('dropdown-select-2', 'value'),])
-def update_barras(selected_tema):
-    if selected_tema is None:
-        selected_tema = 'score_final'
-    new_barras = grafico_barras(df_saude.sort_values(by=[selected_tema], ascending=False), selected_tema)
-    return new_barras
 
 
 
