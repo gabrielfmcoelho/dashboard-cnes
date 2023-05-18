@@ -12,11 +12,14 @@ import datetime
 from datetime import datetime as dt
 import geopandas as gpd
 from statistics import mean
+import os
 
 import pathlib
 
 import database.bigqueryconn as bqconn
 from database import dfcontroller
+
+from scoreTreatment import score_compile
 
 TITLE = "Análise da Saude no Piauí"
 
@@ -31,10 +34,23 @@ app.config.suppress_callback_exceptions = False
 
 BASE_PATH = pathlib.Path(__file__).parent.resolve()
 
-conn = bqconn.BigQueryConn('etl-cnes-a7a20431c4d7.json')
-df_saude = conn.get_data_df('query_saude_score.txt')
-controller = dfcontroller.DfController()
-controller.update_df(df_saude)
+def get_data_from_bigquery():
+    print('executou 1 puxada')
+    conn = bqconn.BigQueryConn('etl-cnes-a7a20431c4d7.json')
+    df_saude = conn.get_data_df('query_saude_score.txt')
+    df_saude = df_saude.sort_values(by=['Municipio'], ascending=True)
+    df_saude.to_csv("df_saude.csv")
+    return df_saude
+
+# Verify is df_saude is in directory
+list_files = os.listdir()
+if "df_saude.csv" in list_files:
+    df_saude = pd.read_csv("df_saude.csv")
+else:
+    df_saude = get_data_from_bigquery()
+
+df_score = score_compile(df_saude)
+df_score.sort_values(by=['score_final'], ascending=False)
 
 INTRO_INFO = {"title": "Análise da Saúde no Piauí", "subtitle":"Conheça a Dashboard de Análise da Saúde no Piauí", "description": "Explore os dados de saúde e conheça mais sobre a situação em cada município."}
 
@@ -55,27 +71,21 @@ def description_card(dict_intro_info):
         ],
     )
 
-CONTROL_INFO = {"title_dropdown": "Selecione Município", "title_datepicker":"Selecione Intervalo de Tempo", "title_multidropdown": "Selecione Variáveis Avaliadas", "title_dropdown_2":"Selecione Tema do Mapa"}
+CONTROL_INFO = {"title_dropdown": "Selecione Município", "title_checkbox":"Deseja Desconsiderar a Capital ?", "title_multidropdown": "Selecione a Pagina da Tabela", "title_dropdown_2":"Selecione Tema do Mapa"}
 
 lista_municipios = df_saude['Municipio'].unique().tolist()
-lista_municipios.sort()
-lista_municipios_c_todos = lista_municipios.copy()
+
+lista_municipios_c_todos = lista_municipios
 lista_municipios_c_todos.append('Todos os Municípios')
-lista_col_numericas = df_saude.select_dtypes(include=np.number).columns.tolist()
+
+lista_col_numericas = df_score.select_dtypes(include=np.number).columns.tolist()
 lista_col_numericas.remove('CO_MUNICIPIO_GESTOR')
-lista_col = df_saude.columns.tolist()
+
+#lista_col = df_saude.columns.tolist()
 
 CONTROL_DATA = {
     "dropdown":lista_municipios_c_todos,
     "dropdown_2":lista_col_numericas,
-    "datepicker":{
-        "start_date":dt(2022, 1, 1),
-        "end_date":dt(2022, 12, 31),
-        "min_date_allowed":dt(2018, 1, 1),
-        "max_date_allowed":dt(2023, 12, 31),
-        "initial_visible_month":dt(2022, 1, 1),
-        "disabled":True,
-    },
     "multidropdown":lista_col_numericas,
     }
 
@@ -101,31 +111,15 @@ def generate_control_card(dict_control_info, **control_data):
                 value=control_data["dropdown_2"][-1],
             ),
             html.Br(),
-            html.P(dict_control_info["title_datepicker"], className="control-card-title"),
-            dcc.DatePickerRange(
-                id="date-picker-select",
-                start_date=control_data["datepicker"]["start_date"],
-                end_date=control_data["datepicker"]["end_date"],
-                min_date_allowed=control_data["datepicker"]["min_date_allowed"],
-                max_date_allowed=control_data["datepicker"]["max_date_allowed"],
-                initial_visible_month=control_data["datepicker"]["initial_visible_month"],
-                disabled=control_data["datepicker"]["disabled"],
+            #botão de checkbox yes or no, por padrão selecionado yes
+            html.P(dict_control_info["title_checkbox"], className="control-card-title"),
+            dcc.Checklist(
+                id="checkbox-select",
+                options=[
+                    {'label': 'Sim', 'value': 'Sim'},
+                ],
+                value=["Sim"]
             ),
-            html.Br(),
-            html.Br(),
-            html.P(dict_control_info["title_multidropdown"], className="control-card-title"),
-            dcc.Dropdown(
-                id="multidropdown-select",
-                options=[{"label": i, "value": i} for i in control_data["multidropdown"]],
-                value=control_data["multidropdown"][:],
-                multi=True,
-            ),
-            html.Br(),
-            html.Div(
-                id="reset-btn-outer",
-                children=html.Button(id="reset-btn", children="Resetar", n_clicks=0),
-            ),
-            html.Br(),
             html.Br(),
         ],
     )
@@ -198,6 +192,19 @@ def grafico_barras(df, tema):
     )
     return fig
 
+def table_present(df):
+    table = html.Table([
+        html.Thead(
+            html.Tr([html.Th(col) for col in df.columns])
+        ),
+        html.Tbody([
+            html.Tr([
+                html.Td(df.iloc[i][col]) for col in df.columns
+            ]) for i in range(len(df))
+        ]),
+    ])
+    return table
+
 app.layout = dcc.Loading(
         id="loading-1",
         children=[
@@ -262,7 +269,7 @@ app.layout = dcc.Loading(
                                                     html.Div(
                                                         id="",
                                                         children=[
-                                                            html.B("Score Final"),
+                                                            html.B("Score Final", id="Score-tema"),
                                                             html.Hr(),
                                                             html.Div(
                                                                 id="Texto do Score Final",
@@ -317,12 +324,9 @@ app.layout = dcc.Loading(
                             html.Div(
                                 id="",
                                 children=[
-                                    html.B("Correlação de Variáveis"),
+                                    html.B("Tabela de Referência"),
                                     html.Hr(),
-                                    dcc.Graph(
-                                        id="heatmap",
-                                        figure=grafico_correlacao(df_saude[[col for col in df_saude.columns if col in lista_col_numericas]]),
-                                    ),
+                                    html.Div(id="Table", style={'overflowX':'scroll'})
                                 ],
                             ),
                             html.Br(),
@@ -336,53 +340,55 @@ app.layout = dcc.Loading(
         fullscreen=True,
     )
 
-    
-    
-
 @app.callback([Output('mapa', 'figure'),
                Output('barras_municipios', 'figure'),
                Output('Texto do Score Final', 'children'),
-               Output('Texto do Ranking Estadual', 'children'),],
+               Output('Texto do Ranking Estadual', 'children'),
+               Output('Score-tema', 'children'),
+               Output('Table', 'children')],
               [Input('dropdown-select', 'value'),
                Input('dropdown-select-2', 'value'),
-               Input('mapa', 'clickData')])
-def update_map(selected_municipio, selected_tema, clickData):
+               Input('checkbox-select', 'value'),])
+def update_map_from_dropdown(selected_municipio, selected_tema, checkbox_value):
+
+    if checkbox_value != [] and checkbox_value[0] == "Sim":
+        filtered_df = score_compile(df_saude.loc[df_saude['Municipio'] != 'Teresina']).sort_values(by=selected_tema, ascending=False).reset_index(drop=True)
+    else:
+        filtered_df = df_score.sort_values(by=['score_final'], ascending=False).reset_index(drop=True)
+
     if (selected_municipio is None)or(selected_municipio == 'Todos os Municípios'):
-        filtered_df = df_saude
+        filtered_df_2 = filtered_df
         zoom = 5.2
         new_score = [html.P("Indisponível")]
-        rank = [html.P("Indisponível")]
-    if clickData is not None:
-        selected_municipio = clickData['points'][0]['location']
-        filtered_df = df_saude.loc[df_saude['Municipio'] == selected_municipio]
-        zoom = 8.2
-        filtered_df = df_saude.loc[df_saude['Municipio'] == selected_municipio]
-        new_score = [html.P(str(filtered_df['score_final'].values[0]))]
-        filtered_df = df_saude.sort_values(by=['score_final'], ascending=False).reset_index(drop=True)
-        rank = [html.P(str(filtered_df.loc[filtered_df['Municipio'] == selected_municipio].index[0]+1) + 'º de ' + str(filtered_df.shape[0]))]
+        new_rank = [html.P("Indisponível")]
     elif selected_municipio in lista_municipios:
-        filtered_df = df_saude.loc[df_saude['Municipio'] == selected_municipio]
+        filtered_df_2 = filtered_df.loc[filtered_df['Municipio'] == selected_municipio]
         zoom = 8.2
-        filtered_df = df_saude.loc[df_saude['Municipio'] == selected_municipio]
-        new_score = [html.P(str(filtered_df['score_final'].values[0]))]
-        filtered_df = df_saude.sort_values(by=['score_final'], ascending=False).reset_index(drop=True)
-        rank = [html.P(str(filtered_df.loc[filtered_df['Municipio'] == selected_municipio].index[0]+1) + 'º de ' + str(filtered_df.shape[0]))]
+        new_score = [html.P(str(filtered_df_2[selected_tema].values[0]))]
+        new_rank = [html.P(str(filtered_df_2.index[0]+1) + 'º de ' + str(filtered_df.shape[0]))]
+
     if (selected_tema is None):
         selected_tema = 'score_final'
-    new_map = grafico_mapa(filtered_df, selected_tema, zoom)
-    new_barras = grafico_barras(df_saude.sort_values(by=[selected_tema], ascending=False), selected_tema)
-    return new_map, new_barras, new_score, rank
+    
+    new_score_title = [html.B(selected_tema.replace('_', ' ').title())]
+    new_map = grafico_mapa(filtered_df_2, selected_tema, zoom)
+    new_barras = grafico_barras(filtered_df.iloc[0:10], selected_tema)
+    new_table = table_present(filtered_df.iloc[0:10])
+    
+    return new_map, new_barras, new_score, new_rank, new_score_title, new_table
 
 #Callback from multidropdown to update heatmap
-@app.callback(Output('heatmap', 'figure'),
-            [Input('multidropdown-select', 'value'),])
-def update_heatmap(selected_vars):
-    if selected_vars is None:
-        selected_vars = lista_col_numericas
-    new_heatmap = grafico_correlacao(df_saude[selected_vars])
-    return new_heatmap
+#@app.callback(Output('heatmap', 'figure'),
+#            [Input('multidropdown-select', 'value'),])
+#def update_heatmap(selected_vars):
+#    if selected_vars is None:
+#        selected_vars = lista_col_numericas
+#
+#    new_heatmap = grafico_correlacao(df_score[selected_vars])
+#    return new_heatmap
 
 
 
 if __name__ == "__main__":
+
     app.run_server(debug=True)
