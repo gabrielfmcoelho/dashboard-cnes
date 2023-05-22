@@ -1,3 +1,4 @@
+import dash
 from dash import Dash, dash_table
 import dash.dcc as dcc
 import dash.html as html
@@ -276,7 +277,7 @@ app.layout = dcc.Loading(
                             html.Div(
                                 id="indicadores",
                                 children=[
-                                    html.B("Indicadores", id='titulo'),
+                                    html.B("Indicadores", id='titulo2'),
                                     html.Hr(),
                                     html.Br(),
                                     html.Div(
@@ -329,7 +330,7 @@ app.layout = dcc.Loading(
                             html.Div(
                                 id="ranking",
                                 children=[
-                                    html.B("Ranking Municipal", id='titulo'),
+                                    html.B("Ranking Municipal", id='titulo3'),
                                     html.Hr(),
                                     html.Br(),
                                     dcc.Graph(
@@ -342,7 +343,7 @@ app.layout = dcc.Loading(
                             html.Div(
                                 id="table",
                                 children=[
-                                    html.B("Tabela de Referência", id='titulo'),
+                                    html.B("Tabela de Referência", id='titulo4'),
                                     html.Hr(),
                                     html.Br(),
                                     html.Div(id="Table", style={'overflowX':'scroll'})

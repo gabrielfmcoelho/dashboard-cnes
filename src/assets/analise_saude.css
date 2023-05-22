@@ -17,7 +17,8 @@ body {
 }
 
 hr {
-    margin: 0.3rem 0rem;
+    margin-top: 0.1rem;
+    margin-bottom: 0.3rem;
 }
 
 .banner {
@@ -127,7 +128,7 @@ H5, H3 {
     padding: 2%;
 }
 
-#titulo {
+#titulo, #titulo2, #titulo3, #titulo4 {
     font-size: 1.5rem;
     font-weight: bold;
 }
@@ -143,7 +144,7 @@ H5, H3 {
 .Br {
     font-size: 1.5rem;
     font-weight: bold;
-    margin-bottom: 7rem;
+    margin-bottom: 2.5rem;
 }
 
 #indicador {
