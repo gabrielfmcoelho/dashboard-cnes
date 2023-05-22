@@ -50,8 +50,8 @@ H5, H3 {
     padding: 0rem 2rem;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    min-height: calc(100vh - 5.5rem);
+    align-items: start;
+    min-height: calc(100vh - 34rem);
 }
 
 #right-column {
@@ -122,6 +122,33 @@ H5, H3 {
     vertical-align: middle;
 }
 
+#Mapa, #ranking, #indicadores, #table {
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+    padding: 2%;
+}
+
+#titulo {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+#Texto_do_Ranking_Estadual, #Texto_do_Score_Final {
+    /* ".inherited-styles-for-exported-element" is a generated class for the inherited styles of the exported element, feel free to rename it. */
+    color: #333;
+    font-size: 2em;
+    font-weight: 400;
+    text-align: center;
+}
+
+.Br {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 7rem;
+}
+
+#indicador {
+    margin-bottom: 2rem;
+}
 
 /*
   ##Device = Most of the Smartphones Mobiles / ipad (Portrait)
@@ -153,6 +180,8 @@ H5, H3 {
     #left-column, #right-column {
         width: 100%;
         margin-left: 0px;
+        align-items: center;
+        text-align: center;
     }
 
     #right-column {
@@ -194,4 +223,36 @@ H5, H3 {
         font-size: 0.8rem !important;
     }
 
+    #Mapa {
+        margin: 5%;
+        padding-left: 5%;
+        padding-right: 5%;
+    }
+
+    #indicadores {
+        margin: 5%;
+        padding-left: 5%;
+        padding-right: 5%;
+    }
+
+    #ranking {
+        margin: 5%;
+        padding-left: 5%;
+        padding-right: 5%;
+    }
+    
+    #table {
+        margin: 5%;
+        padding-left: 5%;
+        padding-right: 5%;
+    }
+
+    #Texto_do_Ranking_Estadual, #Texto_do_Score_Final {
+        /* ".inherited-styles-for-exported-element" is a generated class for the inherited styles of the exported element, feel free to rename it. */
+        color: #333;
+        font-size: 2em;
+        font-weight: 400;
+        text-align: center;
+    }
+    
 }

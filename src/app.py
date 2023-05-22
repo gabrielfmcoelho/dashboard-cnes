@@ -1,4 +1,4 @@
-import dash
+from dash import Dash, dash_table
 import dash.dcc as dcc
 import dash.html as html
 from dash.dependencies import Input, Output, ClientsideFunction
@@ -8,22 +8,19 @@ import plotly.graph_objs as go
 
 import pandas as pd
 import numpy as np
-import datetime
 from datetime import datetime as dt
 import geopandas as gpd
 from statistics import mean
-import os
 
 import pathlib
 
 import database.bigqueryconn as bqconn
-from database import dfcontroller
 
 from scoreTreatment import score_compile
 
 TITLE = "Análise da Saude no Piauí"
 
-app = dash.Dash(
+app = Dash(
     __name__,
     meta_tags=[{"name": "viewport", "content": "width=device-width, initial-scale=1"}],
     title=TITLE,
@@ -35,22 +32,24 @@ app.config.suppress_callback_exceptions = False
 BASE_PATH = pathlib.Path(__file__).parent.resolve()
 
 def get_data_from_bigquery():
-    print('executou 1 puxada')
     conn = bqconn.BigQueryConn('etl-cnes-a7a20431c4d7.json')
     df_saude = conn.get_data_df('query_saude_score.txt')
-    df_saude = df_saude.sort_values(by=['Municipio'], ascending=True)
     df_saude.to_csv("df_saude.csv")
     return df_saude
 
-# Verify is df_saude is in directory
-list_files = os.listdir()
-if "df_saude.csv" in list_files:
-    df_saude = pd.read_csv("df_saude.csv")
-else:
-    df_saude = get_data_from_bigquery()
-
+df_saude = pd.read_csv("df_saude.csv")
 df_score = score_compile(df_saude)
-df_score.sort_values(by=['score_final'], ascending=False)
+df_score = df_score.sort_values(by=['score_final'], ascending=False).reset_index(drop=True)
+DICT_RENAME = {'CO_MUNICIPIO_GESTOR': 'Cód do Município',
+                'Municipio': 'Município',
+                'score_1': 'Leitos',
+                'score_2': 'Estabelecimentos',
+                'score_3': 'Demografia Geral',
+                'score_4': 'Demografia Faixa Etária',
+                'score_5': 'Fluxo de Pacientes',
+                'score_final': 'Score Final'}
+#rename columns 
+df_score = df_score.rename(columns=DICT_RENAME)
 
 INTRO_INFO = {"title": "Análise da Saúde no Piauí", "subtitle":"Conheça a Dashboard de Análise da Saúde no Piauí", "description": "Explore os dados de saúde e conheça mais sobre a situação em cada município."}
 
@@ -79,7 +78,7 @@ lista_municipios_c_todos = lista_municipios
 lista_municipios_c_todos.append('Todos os Municípios')
 
 lista_col_numericas = df_score.select_dtypes(include=np.number).columns.tolist()
-lista_col_numericas.remove('CO_MUNICIPIO_GESTOR')
+lista_col_numericas.remove('Cód do Município')
 
 #lista_col = df_saude.columns.tolist()
 
@@ -136,16 +135,17 @@ def grafico_mapa(df_i, tema, *zoom):
     muni['code_muni'] = muni['code_muni'].str[:-1]
     muni['code_muni'] = muni['code_muni'].astype(float)
     all_muni = muni
-    df['CO_MUNICIPIO_GESTOR'] = df['CO_MUNICIPIO_GESTOR'].astype(float)
-    all_muni = all_muni.loc[all_muni['code_muni'].isin(list(df['CO_MUNICIPIO_GESTOR']))]
-    all_muni = all_muni.rename(columns={'code_muni': 'CO_MUNICIPIO_GESTOR'})
-    all_muni = pd.merge(all_muni, df, how='left', on = 'CO_MUNICIPIO_GESTOR')
+    df['Cód do Município'] = df['Cód do Município'].astype(float)
+    all_muni = all_muni.loc[all_muni['code_muni'].isin(list(df['Cód do Município']))]
+    all_muni = all_muni.rename(columns={'code_muni': 'Cód do Município'})
+    all_muni = pd.merge(all_muni, df, how='left', on = 'Cód do Município')
     all_muni.index = list(all_muni['name_muni'])
     fig = px.choropleth_mapbox(all_muni,
         geojson=all_muni.geometry,
         locations=all_muni.index,
         color=tema,
-        opacity=0.5,
+        color_continuous_scale="Spectral",
+        opacity=0.6,
         center={"lat": (((mean(list(all_muni.geometry.bounds.maxy))-mean(list(all_muni.geometry.bounds.miny)))/2)+mean(list(all_muni.geometry.bounds.miny)))
         , "lon": (((mean(list(all_muni.geometry.bounds.maxx))-mean(list(all_muni.geometry.bounds.minx)))/2)+mean(list(all_muni.geometry.bounds.minx)))},
         labels={'index':'name_muni'},
@@ -155,9 +155,10 @@ def grafico_mapa(df_i, tema, *zoom):
     fig.update_layout(
         dragmode=False,
         margin=dict(l=1, r=1, t=1, b=1),
+        plot_bgcolor="rgba(0,0,0,0)",
+        paper_bgcolor="rgba(0,0,0,0)",
         )
     return fig
-
 
 
 # Função para gerar heatmap de correlação de variáveis
@@ -167,7 +168,7 @@ def grafico_correlacao(df):
         z=df.corr(),
         x=df.columns,
         y=df.columns,
-        colorscale='RdBu',
+        colorscale='Spectral',
         zmin=-1,
         zmax=1,
         colorbar=dict(
@@ -186,23 +187,43 @@ def grafico_correlacao(df):
 
 def grafico_barras(df, tema):
     """ Função para gerar gráfico de barras"""
-    fig = px.bar(df, x=df['Municipio'], y=tema, color=tema, color_continuous_scale='RdBu')
+    range_y = [df_score[tema].min(), df_score[tema].max()]
+    fig = px.bar(df,
+                 x=df['Município'],
+                 y=tema, color=tema,
+                 color_continuous_scale='Spectral',
+                 opacity=0.7,
+                 range_y=range_y,
+                 color_continuous_midpoint=mean(range_y),
+    )
     fig.update_layout(
+        plot_bgcolor="rgba(0,0,0,0)",
+        paper_bgcolor="rgba(0,0,0,0)",
         margin=dict(l=1, r=1, t=1, b=1),
     )
     return fig
 
-def table_present(df):
-    table = html.Table([
-        html.Thead(
-            html.Tr([html.Th(col) for col in df.columns])
-        ),
-        html.Tbody([
-            html.Tr([
-                html.Td(df.iloc[i][col]) for col in df.columns
-            ]) for i in range(len(df))
-        ]),
-    ])
+def table_present(df, tema):
+    table = dash_table.DataTable(
+        data=df.to_dict('records'),
+        sort_action='native',
+        columns=[{'name': i, 'id': i} for i in df.columns[1:]],
+        style_cell={'textAlign': 'left'},
+        style_header={
+            'backgroundColor': 'rgb(230, 230, 230)',
+            'fontWeight': 'bold'
+        },
+        style_data_conditional=[
+            {
+                'if': {'row_index': 'odd'},
+                'backgroundColor': 'rgb(248, 248, 248)',
+            },
+            {
+                'if': {'column_id': tema},
+                'font-weight': 'bold',
+            }
+        ],
+    )
     return table
 
 app.layout = dcc.Loading(
@@ -238,27 +259,26 @@ app.layout = dcc.Loading(
                         className="eight columns",
                         children=[
                             html.Br(),
-                            html.Br(),
                             # Mapa
                             html.Div(
-                                id="",
+                                id="Mapa",
                                 children=[
-                                    html.B("Mapa do Estado"),
+                                    html.B("Mapa do Estado", id='titulo'),
                                     html.Hr(),
+                                    html.Br(),
                                     dcc.Graph(
                                         id="mapa",
-                                        figure=grafico_mapa(df_saude, "score_final", 5.2),
                                     ),
                                 ],
                             ),
                             html.Br(),
-                            html.Br(),
                             # Indicadores
                             html.Div(
-                                id="",
+                                id="indicadores",
                                 children=[
-                                    html.B("Indicadores"),
+                                    html.B("Indicadores", id='titulo'),
                                     html.Hr(),
+                                    html.Br(),
                                     html.Div(
                                         id="", className="row",
                                         children=[
@@ -267,12 +287,12 @@ app.layout = dcc.Loading(
                                                 className="six columns",
                                                 children=[
                                                     html.Div(
-                                                        id="",
+                                                        id="indicador",
                                                         children=[
                                                             html.B("Score Final", id="Score-tema"),
                                                             html.Hr(),
                                                             html.Div(
-                                                                id="Texto do Score Final",
+                                                                id="Texto_do_Score_Final",
                                                                 children=[
                                                                     html.P("Carregando..."),
                                                                 ],
@@ -286,12 +306,12 @@ app.layout = dcc.Loading(
                                                 className="six columns",
                                                 children=[
                                                     html.Div(
-                                                        id="",
+                                                        id="indicador",
                                                         children=[
                                                             html.B("Ranking Estadual"),
                                                             html.Hr(),
                                                             html.Div(
-                                                                id="Texto do Ranking Estadual",
+                                                                id="Texto_do_Ranking_Estadual",
                                                                 children=[
                                                                     html.P("Carregando..."),
                                                                 ],
@@ -305,31 +325,29 @@ app.layout = dcc.Loading(
                                 ],
                             ),
                             html.Br(),
-                            html.Br(),
                             # Gráfico de Barras de Municipios
                             html.Div(
-                                id="",
+                                id="ranking",
                                 children=[
-                                    html.B("Ranking Municipal"),
+                                    html.B("Ranking Municipal", id='titulo'),
                                     html.Hr(),
+                                    html.Br(),
                                     dcc.Graph(
                                         id="barras_municipios",
-                                        figure=grafico_barras(df_saude.sort_values(by=['score_final'], ascending=False), "score_final"),
                                     ),
                                 ],
                             ),
                             html.Br(),
-                            html.Br(),
                             # Grafico de Correlação de Variáveis
                             html.Div(
-                                id="",
+                                id="table",
                                 children=[
-                                    html.B("Tabela de Referência"),
+                                    html.B("Tabela de Referência", id='titulo'),
                                     html.Hr(),
+                                    html.Br(),
                                     html.Div(id="Table", style={'overflowX':'scroll'})
                                 ],
                             ),
-                            html.Br(),
                             html.Br(),
                         ],
                     ),
@@ -342,8 +360,8 @@ app.layout = dcc.Loading(
 
 @app.callback([Output('mapa', 'figure'),
                Output('barras_municipios', 'figure'),
-               Output('Texto do Score Final', 'children'),
-               Output('Texto do Ranking Estadual', 'children'),
+               Output('Texto_do_Score_Final', 'children'),
+               Output('Texto_do_Ranking_Estadual', 'children'),
                Output('Score-tema', 'children'),
                Output('Table', 'children')],
               [Input('dropdown-select', 'value'),
@@ -352,9 +370,10 @@ app.layout = dcc.Loading(
 def update_map_from_dropdown(selected_municipio, selected_tema, checkbox_value):
 
     if checkbox_value != [] and checkbox_value[0] == "Sim":
-        filtered_df = score_compile(df_saude.loc[df_saude['Municipio'] != 'Teresina']).sort_values(by=selected_tema, ascending=False).reset_index(drop=True)
+        filtered_df = score_compile(df_saude.loc[df_saude['Municipio'] != 'Teresina'])
+        filtered_df = filtered_df.rename(columns=DICT_RENAME).sort_values(by=selected_tema, ascending=False).reset_index(drop=True)
     else:
-        filtered_df = df_score.sort_values(by=['score_final'], ascending=False).reset_index(drop=True)
+        filtered_df = df_score
 
     if (selected_municipio is None)or(selected_municipio == 'Todos os Municípios'):
         filtered_df_2 = filtered_df
@@ -362,18 +381,18 @@ def update_map_from_dropdown(selected_municipio, selected_tema, checkbox_value):
         new_score = [html.P("Indisponível")]
         new_rank = [html.P("Indisponível")]
     elif selected_municipio in lista_municipios:
-        filtered_df_2 = filtered_df.loc[filtered_df['Municipio'] == selected_municipio]
+        filtered_df_2 = filtered_df.loc[filtered_df['Município'] == selected_municipio]
         zoom = 8.2
         new_score = [html.P(str(filtered_df_2[selected_tema].values[0]))]
         new_rank = [html.P(str(filtered_df_2.index[0]+1) + 'º de ' + str(filtered_df.shape[0]))]
 
     if (selected_tema is None):
-        selected_tema = 'score_final'
-    
-    new_score_title = [html.B(selected_tema.replace('_', ' ').title())]
+        selected_tema = 'Score Final'
+
+    new_score_title = [html.B(selected_tema.title())]
     new_map = grafico_mapa(filtered_df_2, selected_tema, zoom)
     new_barras = grafico_barras(filtered_df.iloc[0:10], selected_tema)
-    new_table = table_present(filtered_df.iloc[0:10])
+    new_table = table_present(filtered_df.iloc[0:10], selected_tema)
     
     return new_map, new_barras, new_score, new_rank, new_score_title, new_table
 
@@ -390,5 +409,5 @@ def update_map_from_dropdown(selected_municipio, selected_tema, checkbox_value):
 
 
 if __name__ == "__main__":
-
+    get_data_from_bigquery()
     app.run_server(debug=True)
