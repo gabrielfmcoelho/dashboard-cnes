@@ -307,7 +307,7 @@ app.layout = dcc.Loading(
                                                 className="six columns",
                                                 children=[
                                                     html.Div(
-                                                        id="indicador",
+                                                        id="indicador2",
                                                         children=[
                                                             html.B("Ranking Estadual"),
                                                             html.Hr(),
