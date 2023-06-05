@@ -1,0 +1,6 @@
+./pages/__pycache__
+./database/__pycache__
+./database/etl-cnes-a7a20431c4d7.json
+./scripts/__pycache__
+./components/__pycache__
+./__pycache__

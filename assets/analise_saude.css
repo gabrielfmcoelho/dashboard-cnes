@@ -1,0 +1,482 @@
+@font-face {
+    font-family: Acumin;
+    font-weight: bold;
+    src: url("Acumin-BdPro.otf") format("opentype");
+}
+
+#app-container {
+    width: 100%;
+    max-width: none;
+}
+
+body {
+    background-color: #f9f9f9;
+    color: #333333;
+    font-size: 15px;
+    margin: 0px;
+}
+
+hr {
+    margin-top: 0.1rem;
+    margin-bottom: 0.3rem;
+}
+
+.banner {
+    height: 5.5rem;
+    padding: 0rem 2rem 0rem;
+    background-color: white;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.banner Img {
+    position: relative;
+    height: 3rem;
+    width: auto;
+    margin-left: 2%;
+}
+
+H5 {
+    color: #2c8cff;
+    font-weight: 300;
+}
+
+H5, H3 {
+    font-family: Acumin, "Helvetica Neue", sans-serif;
+}
+
+#left-column, #left-column2 {
+    margin-left: 1%;
+    float: left;
+    margin-top: 20px;
+    padding: 0rem 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    min-height: calc(100vh - 34rem);
+    max-width: 23%;
+}
+
+#right-column {
+    float: right;
+    background-color: #f4f4f4;
+    padding: 0rem 2rem;
+    width: 75%;
+    margin-left: 0;
+    min-height: calc(100vh - 5.5rem);
+}
+
+#div_especial_1, #div_especial_2 {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    margin-right: 2rem;
+}
+
+#generic1, #generic2, #generic3, #generic4 {
+    margin-top: 2rem;
+    margin-left: 2rem;
+    flex: 1;
+}
+
+#ContainerMapaG, #ContainerMapaG2, #ContainerMapaG3, #ContainerMapaG4 {
+    display: flex;
+    flex-direction: row;
+}
+
+#mapa_retrato1, #mapa_retrato2, #mapa_retrato3, #mapa_retrato4 {
+    flex: 0.60;
+}
+
+#control-card-comp, #control-card-comp2, #control-card-comp3, #control-card-comp4 {
+    flex: 0.40;
+    display: flex;
+    flex-direction: column;
+    margin-left: 2%;
+}
+
+#right-column2 {
+    float: right;
+    background-color: #f4f4f4;
+    padding: 0rem 2rem;
+    width: 75%;
+    margin-left: 0;
+    min-height: calc(100vh - 5.5rem);
+}
+
+.table-row {
+    height: 63px;
+    vertical-align: middle;
+    font-size: 13px;
+}
+
+.wait_time_graph > div, .patient_score_graph > div {
+    height: 100% !important;
+    width: 100% !important;
+}
+
+
+
+
+
+
+.draglayer {
+    cursor: pointer !important;
+}
+
+#intro {
+    margin: 20px 0px;
+    font-family: "Helvetica Neue", sans-serif;
+    text-align: justify;
+}
+
+#control-card > p {
+    font-weight: bold;
+}
+
+#div_especial {
+    display: flex;
+    flex-direction: row;
+}
+
+#div_especial2 {
+    display: flex;
+    flex-direction: row;
+}
+
+#patient_volume_card, #wait_time_card {
+    background-color: #FFFFFF;
+    padding: 1rem;
+    margin: auto;
+    margin-top: 20px;
+}
+
+#patient_volume_card > b, #wait_time_card > b {
+    line-height: 2.5;
+}
+
+#wait_time_card {
+    margin: 20px 0px;
+}
+
+#patient_volume_hm {
+    height: 400px;
+}
+
+.table-row:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.row-department > b {
+    display: table-cell;
+    vertical-align: middle;
+}
+
+#header_wait_time_min, #header_care_score {
+    display: table;
+}
+
+#header_wait_time_min > b, #header_care_score > b {
+    display: table-cell;
+    vertical-align: middle;
+}
+
+#banner-nav {
+    margin-left: 15%;
+    display: flex;
+    flex-direction: row;
+}
+
+#banner-link {
+    color: #2c8cff;
+    font-weight: 300;
+    text-decoration: none;
+    min-width: 80px;
+}
+
+#banner-link-2 {
+    margin-left: 20%;
+    color: #2c8cff;
+    font-weight: 300;
+    text-decoration: none;
+}
+
+#Mapa, #Ranking, #Indicadores, #table, #table_rel, #Mapa2, #generic1, #generic2, #generic3, #generic4 {
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+    padding: 2%;
+}
+
+
+
+#titulo, #titulo2, #titulo3, #titulo4, #titulo5, #titulo6 {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+#Texto_do_Score_Final {
+    color: #333;
+    font-size: 2em;
+    font-weight: 400;
+}
+
+#indicador {
+    display: flex;
+    flex-direction: row;
+    align-items: start;
+    justify-content: space-between;
+}
+
+#Score-tema {
+    text-align: center;
+}
+
+#indicador2 {
+    display: flex;
+    flex-direction: row;
+    align-items: start;
+    justify-content: space-between;
+}
+
+#Texto_do_Ranking_Estadual {
+    color: #333;
+    font-size: 2em;
+    font-weight: 400;
+}
+
+.Br {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 2.5rem;
+}
+
+#Mapa_Completo {
+    display: flex;
+    margin-top: 2rem;
+}
+
+#Mapa {
+    margin-right: 2%;
+    height: 100%;
+    flex: 2;
+}
+
+#Indicadores {
+    height: 100%;
+    flex: 1;
+}
+
+#Ranking {
+    margin-top: 2rem;
+    flex: 1;
+}
+
+#table {
+    margin-top: 2rem;
+}
+
+#table_rel {
+    margin-top: 2rem;
+}
+
+/*
+  ##Device = Most of the Smartphones Mobiles / ipad (Portrait)
+  */
+
+@media only screen and (max-width: 750px), screen and (min-width: 768px) and (max-width: 1024px) {
+
+    body {
+        font-size: 13px;
+        margin: 0px;
+    }
+
+    .banner {
+        height: 6.5rem;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 0.5rem;
+        min-height: fit-content;
+        padding-bottom: 3rem;
+    }
+
+    h5 {
+        font-size: 1.8rem;
+    }
+    
+    #banner-nav {
+        display: flex;
+        justify-content: space-evenly;
+        align-items: center;
+        width: 100%;
+        margin: 0px;
+    }
+
+    #banner-title{
+        font-size: 2.5rem;
+    }
+
+    #banner-link {
+        font-size: 1.5rem;
+    }
+
+    #banner-link-2 {
+        font-size: 1.5rem;
+    }
+
+    h3 {
+        font-size: 2.5rem;
+    }
+
+    #intro {
+        margin: 10px 0px;
+    }
+
+    #left-column, #right-column {
+        width: 100%;
+        margin-left: 0px;
+        align-items: center;
+        text-align: center;
+        max-width: 100%;
+    }
+
+    #right-column {
+        padding: 0rem 0.5rem;
+    }
+
+    #reset-btn-outer {
+        text-align: center;
+    }
+
+    .table-row > div {
+        width: 100% !important;
+        text-align: center;
+        margin: auto;
+    }
+
+    .table-row:nth-child(even), .table-row:nth-child(odd) {
+        background-color: #FFFFFF;
+    }
+
+    #header {
+        display: none;
+    }
+
+    #page-content {
+        zoom: 0.9;
+    }
+
+    #wait_time_table:after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+
+    #patient_volume_card > b, #wait_time_card > b {
+        line-height: 2.5;
+        font-size: 13px;
+        display: block;
+        text-align: center;
+    }
+
+    .annotation-text {
+        font-size: 0.8rem !important;
+    }
+
+    #Mapa {
+        float: none;
+        width: auto;
+        margin: 10%;
+        padding-left: 5%;
+        padding-right: 5%;
+    }
+      
+    #Mapa2 {
+        float: none;
+        width: auto;
+        margin: 10%;
+        padding-left: 5%;
+        padding-right: 5%;
+    }
+
+    #indicadores {
+        margin: 10%;
+        padding-left: 5%;
+        padding-right: 5%;
+    }
+
+    #ranking {
+        margin: 10%;
+        padding-left: 5%;
+        padding-right: 5%;
+    }
+    
+    #table {
+        margin: 10%;
+        padding-left: 5%;
+        padding-right: 5%;
+    }
+
+    #table_rel {
+        margin: 10%;
+        padding-left: 5%;
+        padding-right: 5%;
+    }
+
+    #Texto_do_Ranking_Estadual, #Texto_do_Score_Final {
+        /* ".inherited-styles-for-exported-element" is a generated class for the inherited styles of the exported element, feel free to rename it. */
+        color: #333;
+        font-size: 1.5em;
+        font-weight: 400;
+        text-align: center;
+    }
+    
+    #Mapa_Completo {
+        display: flex;
+        flex-direction: column;
+    }
+
+    #Indicadores {
+        margin-left: 10%;
+        margin-right: 10%;
+        padding-left: 5%;
+        padding-right: 5%;
+    }
+
+    #Ranking {
+        margin: 10%;
+        padding-left: 5%;
+        padding-right: 5%;
+    }
+
+    #div_especial_1, #div_especial_2 {
+        flex-direction: column;
+        margin-left: 10%;
+        margin-right: 12%;
+    }
+
+    #generic1, #generic2, #generic3, #generic4 {
+        width: 100%;
+    }
+
+    #ContainerMapaG, #ContainerMapaG2, #ContainerMapaG3, #ContainerMapaG4 {
+        flex-direction: column;
+    }
+
+    #control-card-comp, #control-card-comp2, #control-card-comp3, #control-card-comp4 {
+        margin-top: 2%;
+        padding: 10%;
+    }
+
+}
+
+@media only screen and (min-width: 1025px) and (max-width: 1250px) {
+    #Mapa_Completo {
+        display: flex;
+        flex-direction: column;
+    }
+
+    #Indicadores {
+        margin-top: 2rem;
+    }
+}

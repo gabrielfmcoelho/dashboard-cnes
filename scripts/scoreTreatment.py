@@ -4,6 +4,7 @@ import warnings
 warnings.filterwarnings("ignore", category=Warning)
 
 def score_compile(df):
+    df = df.copy()
     # Score 1 - Leitos de Saúde
     lista_scores_1 = ['QTLeitosSUS', 'QT_NaoSUS', 'DVLeitos', 'EXTLeitosPediatrico']
     for column in lista_scores_1:
@@ -22,6 +23,8 @@ def score_compile(df):
     df['score_2'] = np.mean(df[lista_score_2], axis=1)
     df['score_2'] = df['score_2'].apply(lambda x: round(x*100, 2))
 
+
+    df['População'] = df['PopulacaoEstimada_2021_']
     # Score 3 - Dados Demográficos Gerais
     lista_score_3 = ['DensidadeDemografica_2010_', 'PopulacaoEstimada_2021_', 'IDHM_2010_', 'PIBPerCapita_2020_']
     for column in lista_score_3:
@@ -41,7 +44,8 @@ def score_compile(df):
     df['score_4'] = df['score_4'].apply(lambda x: round(x*100, 2))
 
     # Score 5 - SIH envio e recebimento de pacientes
-    lista_score_5 = ['PacientesEnv', 'PacientesRec']
+    df['DiffRecEnv'] = df['PacientesRec'] - df['PacientesEnv']
+    lista_score_5 = ['DiffRecEnv']
     for column in lista_score_5:
         df[column] = df[column].astype(float)
         max_col = df[column].max()
@@ -52,7 +56,7 @@ def score_compile(df):
     lista_de_scores = ['score_1', 'score_2', 'score_3', 'score_4', 'score_5']
     df['score_final'] = np.mean(df[lista_de_scores], axis=1)
     df['score_final'] = df['score_final'].apply(lambda x: round(x, 2))
-    lista_final = ['CO_MUNICIPIO_GESTOR', 'Municipio', 'Mesoregiao', 'RegionaldeSaude'] + lista_de_scores + ['score_final']
+    lista_final = ['CO_MUNICIPIO_GESTOR', 'Municipio', 'Mesoregiao', 'RegionaldeSaude', 'População'] + lista_de_scores + ['score_final']
     df = df[lista_final]
 
     return df
