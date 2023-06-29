@@ -5,8 +5,9 @@ def generate_bar_graph(df, tema, df_score):
     """ Função para gerar gráfico de barras"""
     range_y = [df_score[tema].min(), df_score[tema].max()]
     fig = px.bar(df,
-                 x=df['Município'],
-                 y=tema, color=tema,
+                 x=df['Município'] if 'Município' in df.columns else df['Regional de Saúde'],
+                 y=tema, 
+                 color=tema,
                  color_continuous_scale='Spectral',
                  opacity=0.7,
                  range_y=range_y,

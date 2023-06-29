@@ -8,7 +8,10 @@ def generate_control_card(dict_control_info, control_data, id="control-card"):
     return html.Div(
         id=id,
         children=[
-            html.P(dict_control_info["title_dropdown3"], className="control-card-title"),
+            html.Div([
+                html.P(dict_control_info["title_dropdown3"], className="control-card-title"),
+                html.Img(src="assets\info-circle-svgrepo-com.svg", style={"cursor": "pointer"}, id="info-icon"),
+            ], style={"display": "flex", "justify-content": "start", "align-items": "center", "flex-direction": "row", "justify-items": "center", "align-items": "center"}),
             dcc.Dropdown(
                 id=id+"dropdown-select-3",
                 options=[{"label": i, "value": i} for i in control_data["dropdown_3"]],

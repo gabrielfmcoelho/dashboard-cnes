@@ -3,7 +3,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from statistics import mean
 
-def generate_state_map_fig(df_muni, df_i, tema, args, column_cod='Cód do Município'):
+def generate_regions_map_fig(df_muni, df_i, tema, args, column_cod='Cód do Município'):
     """
 
     :return: Função para Gerar o Gráfico do Mapa
@@ -14,18 +14,24 @@ def generate_state_map_fig(df_muni, df_i, tema, args, column_cod='Cód do Munic�
     all_muni = all_muni.loc[all_muni['code_muni'].isin(list(df[column_cod]))]
     all_muni = all_muni.rename(columns={'code_muni': column_cod})
     all_muni = pd.merge(all_muni, df, how='left', on = column_cod)
-    all_muni.index = list(all_muni['name_muni'])
+
+    regions = all_muni.rename(columns={'Regional de Saúde': "regiao"})
+    regions = regions.dissolve(by='regiao', aggfunc='mean')
+    regions = regions.reset_index()
+    regions.index = list(regions['regiao'])
+
+    regions[tema] = regions[tema].apply(lambda x: round(x, 2))
 
     fig = px.choropleth_mapbox(
-        all_muni,
-        geojson=all_muni.geometry,
-        locations=all_muni.index,
+        regions,
+        geojson=regions.geometry,
+        locations=regions.index,
         color=tema,
         color_continuous_scale="Spectral",
         opacity=0.6,
-        center={"lat": (((mean(list(all_muni.geometry.bounds.maxy))-mean(list(all_muni.geometry.bounds.miny)))/2)+mean(list(all_muni.geometry.bounds.miny)))
-        , "lon": (((mean(list(all_muni.geometry.bounds.maxx))-mean(list(all_muni.geometry.bounds.minx)))/2)+mean(list(all_muni.geometry.bounds.minx)))-args[1]},
-        labels={'index':'Município'},
+        center={"lat": (((mean(list(regions.geometry.bounds.maxy))-mean(list(regions.geometry.bounds.miny)))/2)+mean(list(regions.geometry.bounds.miny)))
+        , "lon": (((mean(list(regions.geometry.bounds.maxx))-mean(list(regions.geometry.bounds.minx)))/2)+mean(list(regions.geometry.bounds.minx)))-args[1]},
+        labels={'index':'Regional de Saúde'},
         mapbox_style="open-street-map",
         zoom=args[0] if args[0] else 5.2,
     )

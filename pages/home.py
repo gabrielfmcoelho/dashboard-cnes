@@ -8,6 +8,7 @@ from components.bar_graph import generate_bar_graph
 from components.table_ref import generate_table_ref
 from components.table_rel import generate_table_rel
 from components.map_state import generate_state_map_fig
+from components.map_regions import generate_regions_map_fig
 from database.dfcontroller import DfController
 
 controller = DfController()
@@ -36,7 +37,7 @@ MAP_COMPONENT = html.Div(
                 html.Br(),
                 html.Div(
                     children = [
-                        dcc.Graph(id="mapa"),
+                        dcc.Graph(id='mapa'),
                     ],
                 ),
             ],
@@ -64,6 +65,20 @@ SCORE_COMPONENT = html.Div(
                         html.P("Carregando...", id="Texto_do_Ranking_Estadual"),
                     ],
                 ),
+            ],
+        ),
+    ],
+)
+
+SCORE_TEXT_COMPONENT = html.Div(
+    id="IndicadoresExplicacao",
+    children=[
+        html.B("O que é o Score ?", id='titulo2'),
+        html.Hr(),
+        html.Br(),
+        html.Div(
+            children = [
+                html.P("O Score é um indicador que varia de 0 a 100, que representa a situação de um município em relação a um tema específico. Quanto maior o Score, melhor a situação do município em relação ao tema.", id="Texto_do_Score"),
             ],
         ),
     ],
@@ -113,7 +128,10 @@ RIGHT_SIDE_COLUMN = html.Div(
             id="Mapa_Completo",
             children=[
                 MAP_COMPONENT,
-                SCORE_COMPONENT,
+                html.Div([
+                    SCORE_COMPONENT,
+                    SCORE_TEXT_COMPONENT,
+                ], id="Indicadores_coluna"),
             ],
         ),
         RANKING_COMPONENT,
@@ -127,6 +145,17 @@ def update_output_control():
     global CONTROL_INFO
     div = [
             generate_description_card(INTRO_INFO),
+            html.P("Metodo de Visualização", className="control-card-title", id="tab-title"),
+            dcc.Tabs(id="tabs", value='tab-1', children=[
+                            dcc.Tab(label='Municipios', value='tab-1'),
+                            dcc.Tab(label='Regionais', value='tab-2'),
+                        ], colors={
+                            "border": "white",
+                            "primary": "#2c8cff",
+                            "background": "lightgray",
+                            },
+                        ),
+            html.Br(),
             generate_control_card(CONTROL_INFO, CONTROL_DATA),
         ],
     return div
@@ -183,10 +212,9 @@ def update_cities_dropdown(region, remove_capital):
                Input("control-card"+'dropdown-select-2', 'value'),
                Input("control-card"+'checkbox-select', 'value'),
                Input("control-card"+'dropdown-select-3', 'value'),
-               Input("screen-width", "value")])
-def update_map_from_dropdown(selected_municipio, selected_tema, checkbox_value, region, width_flag):
-
-
+               Input("screen-width", "value"),
+               Input("tabs", 'value'),])
+def update_map_from_dropdown(selected_municipio, selected_tema, checkbox_value, region, width_flag, tab):
 
     if checkbox_value != [] and checkbox_value[0] == "Sim":
         filtered_df = controller.get_df_score_without_the().sort_values(by=selected_tema, ascending=False).reset_index(drop=True)
@@ -220,9 +248,15 @@ def update_map_from_dropdown(selected_municipio, selected_tema, checkbox_value, 
         selected_tema = 'Score Final'
 
     new_score_title = [html.B(selected_tema.title())]
-    new_map = generate_state_map_fig(controller.get_df_cities(), filtered_df_2, selected_tema, args)
+    if tab == 'tab-1':
+        new_relevancy_table = generate_table_rel(df_relevancy)
+        new_map = generate_state_map_fig(controller.get_df_cities(), filtered_df_2, selected_tema, args)
+    elif tab == 'tab-2':
+        new_relevancy_table = html.H1("Disponível apenas para municípios")
+        new_map = generate_regions_map_fig(controller.get_df_cities(), filtered_df_2, selected_tema, args)
+        filtered_df = filtered_df.groupby(['Regional de Saúde']).mean().sort_values(by=selected_tema, ascending=False).reset_index()
     new_barras = generate_bar_graph(filtered_df.iloc[0:10], selected_tema, filtered_df)
     new_table = generate_table_ref(filtered_df.iloc[0:10], selected_tema)
-    new_relevancy_table = generate_table_rel(df_relevancy)
+    
     
     return new_map, new_barras, new_score, new_rank, new_score_title, new_table, new_relevancy_table

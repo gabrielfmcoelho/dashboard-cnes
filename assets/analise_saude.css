@@ -136,6 +136,14 @@ H5, H3 {
     font-weight: bold;
 }
 
+#control-card > div > p {
+    font-weight: bold;
+}
+
+#tab-title{
+    font-weight: bold;
+}
+
 #div_especial {
     display: flex;
     flex-direction: row;
@@ -203,7 +211,7 @@ H5, H3 {
     text-decoration: none;
 }
 
-#Mapa, #Ranking, #Indicadores, #table, #table_rel, #Mapa2, #generic1, #generic2, #generic3, #generic4 {
+#Mapa, #Ranking, #Indicadores, #table, #table_rel, #Mapa2, #generic1, #generic2, #generic3, #generic4, #IndicadoresExplicacao {
     box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
     padding: 2%;
 }
@@ -217,7 +225,7 @@ H5, H3 {
 
 #Texto_do_Score_Final {
     color: #333;
-    font-size: 2em;
+    font-size: 1.8em;
     font-weight: 400;
 }
 
@@ -241,7 +249,7 @@ H5, H3 {
 
 #Texto_do_Ranking_Estadual {
     color: #333;
-    font-size: 2em;
+    font-size: 1.8em;
     font-weight: 400;
 }
 
@@ -263,8 +271,25 @@ H5, H3 {
 }
 
 #Indicadores {
-    height: 100%;
+    flex:0.6;
+    margin-bottom: 2rem;
+    padding-left: 2rem;
+    padding-right: 2rem;
+}
+
+#IndicadoresExplicacao {
+    flex:1.4;
+    text-align: justify;
+    padding-left: 2rem;
+    padding-right: 2rem;
+}
+
+#Indicadores_coluna {
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
 }
 
 #Ranking {
@@ -280,6 +305,13 @@ H5, H3 {
     margin-top: 2rem;
 }
 
+#info-icon {
+    margin-left: 5px;
+    filter: invert(40%) sepia(50%) saturate(2656%) hue-rotate(200deg) brightness(106%) contrast(100%);
+    font-size: 1.2rem;
+    height: 2rem;
+    padding-bottom: 3%;
+}
 /*
   ##Device = Most of the Smartphones Mobiles / ipad (Portrait)
   */
@@ -436,9 +468,17 @@ H5, H3 {
         flex-direction: column;
     }
 
-    #Indicadores {
+    #Indicadores{
         margin-left: 10%;
         margin-right: 10%;
+        padding-left: 5%;
+        padding-right: 5%;
+    }
+
+    #IndicadoresExplicacao {
+        margin-left: 10%;
+        margin-right: 10%;
+        margin-top: 5%;
         padding-left: 5%;
         padding-right: 5%;
     }
@@ -468,6 +508,11 @@ H5, H3 {
         padding: 10%;
     }
 
+    #tabs {
+        display: flex;
+        flex-direction: row;
+    }
+
 }
 
 @media only screen and (min-width: 1025px) and (max-width: 1250px) {
@@ -476,7 +521,7 @@ H5, H3 {
         flex-direction: column;
     }
 
-    #Indicadores {
+    #Indicadores, #IndicadoresExplicacao {
         margin-top: 2rem;
     }
 }

@@ -1,7 +1,15 @@
 from dash import dash_table
 
 def generate_table_ref(df, tema):
-    df = df.iloc[:, 1:]
+    if 'Município' in df.columns:
+        df = df.iloc[:, 1:]
+    else:
+        df.drop(columns=['Cód do Município'], inplace=True)
+        #formatar colunas numericas para 2 casas decimais
+        for col in df.columns:
+            if col != 'Regional de Saúde':
+                df[col] = df[col].apply(lambda x: round(x, 2))
+        df = df.iloc[:, :]
     table = dash_table.DataTable(
         data=df.to_dict('records'),
         sort_action='native',

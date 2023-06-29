@@ -15,7 +15,7 @@ def score_compile(df):
     df['score_1'] = df['score_1'].apply(lambda x: round(x*100, 2))
 
     # Score 2 - Estabelecimentos de Saúde
-    lista_score_2 = ['QTUnidades', 'QTCNES', 'QTProfissionais', 'QTHospitais', 'QTClinicas', 'QTLaboratorios', 'QTConsultorios', 'QTUnidadesBasicas', 'DVtpunidade']
+    lista_score_2 = ['QTUnidades', 'QTProfissionais', 'QTHospitais', 'QTClinicas', 'QTLaboratorios', 'QTConsultorios', 'QTUnidadesBasicas', 'DVtpunidade']
     for column in lista_score_2:
         df[column] = df[column].astype(float)
         max_col = df[column].max()
