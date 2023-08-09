@@ -10,14 +10,14 @@ def generate_table_ref(df, tema):
             if col != 'Regional de Saúde':
                 df[col] = df[col].apply(lambda x: round(x, 2))
         df = df.iloc[:, :]
-    table = dash_table.DataTable(
+    return dash_table.DataTable(
         data=df.to_dict('records'),
         sort_action='native',
         columns=[{'name': i, 'id': i} for i in df.columns],
         style_cell={'textAlign': 'left'},
         style_header={
             'backgroundColor': 'rgb(230, 230, 230)',
-            'fontWeight': 'bold'
+            'fontWeight': 'bold',
         },
         style_data_conditional=[
             {
@@ -27,7 +27,6 @@ def generate_table_ref(df, tema):
             {
                 'if': {'column_id': tema},
                 'font-weight': 'bold',
-            }
+            },
         ],
     )
-    return table
