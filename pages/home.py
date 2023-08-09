@@ -143,22 +143,31 @@ RIGHT_SIDE_COLUMN = html.Div(
 def update_output_control():
     global INTRO_INFO
     global CONTROL_INFO
-    div = [
+    return (
+        [
             generate_description_card(INTRO_INFO),
-            html.P("Metodo de Visualização", className="control-card-title", id="tab-title"),
-            dcc.Tabs(id="tabs", value='tab-1', children=[
-                            dcc.Tab(label='Municipios', value='tab-1'),
-                            dcc.Tab(label='Regionais', value='tab-2'),
-                        ], colors={
-                            "border": "white",
-                            "primary": "#2c8cff",
-                            "background": "lightgray",
-                            },
-                        ),
+            html.P(
+                "Metodo de Visualização",
+                className="control-card-title",
+                id="tab-title",
+            ),
+            dcc.Tabs(
+                id="tabs",
+                value='tab-1',
+                children=[
+                    dcc.Tab(label='Municipios', value='tab-1'),
+                    dcc.Tab(label='Regionais', value='tab-2'),
+                ],
+                colors={
+                    "border": "white",
+                    "primary": "#2c8cff",
+                    "background": "lightgray",
+                },
+            ),
             html.Br(),
             generate_control_card(CONTROL_INFO, CONTROL_DATA),
         ],
-    return div
+    )
 
 layout = dcc.Loading(
             id="loading-1",
@@ -179,8 +188,7 @@ layout = dcc.Loading(
 def control(none):
 
 
-    div = update_output_control()
-    return div
+    return update_output_control()
 
 @callback([Output("control-card"+'dropdown-select', 'options'),
            Output("control-card"+'dropdown-select', 'value'),],
@@ -242,7 +250,11 @@ def update_map_from_dropdown(selected_municipio, selected_tema, checkbox_value, 
         offset = 0
         args = [zoom, offset]
         new_score = [html.P(str(filtered_df_2[selected_tema].values[0]))]
-        new_rank = [html.P(str(filtered_df_2.index[0]+1) + 'º de ' + str(filtered_df.shape[0]))]
+        new_rank = [
+            html.P(
+                f'{str(filtered_df_2.index[0] + 1)}º de {str(filtered_df.shape[0])}'
+            )
+        ]
 
     if (selected_tema is None):
         selected_tema = 'Score Final'
@@ -255,8 +267,10 @@ def update_map_from_dropdown(selected_municipio, selected_tema, checkbox_value, 
         new_relevancy_table = html.H1("Disponível apenas para municípios")
         new_map = generate_regions_map_fig(controller.get_df_cities(), filtered_df_2, selected_tema, args)
         filtered_df = filtered_df.groupby(['Regional de Saúde']).mean().sort_values(by=selected_tema, ascending=False).reset_index()
-    new_barras = generate_bar_graph(filtered_df.iloc[0:10], selected_tema, filtered_df)
-    new_table = generate_table_ref(filtered_df.iloc[0:10], selected_tema)
-    
-    
+    new_barras = generate_bar_graph(
+        filtered_df.iloc[:10], selected_tema, filtered_df
+    )
+    new_table = generate_table_ref(filtered_df.iloc[:10], selected_tema)
+        
+
     return new_map, new_barras, new_score, new_rank, new_score_title, new_table, new_relevancy_table

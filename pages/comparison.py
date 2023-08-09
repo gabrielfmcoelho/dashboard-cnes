@@ -84,10 +84,11 @@ MAP_COMPONENT4 = html.Div(
 def update_output_control():
     global INTRO_INFO
     global CONTROL_INFO
-    div = [
+    return (
+        [
             generate_description_card(INTRO_INFO, id="description-card-comp"),
         ],
-    return div
+    )
 
 layout = dcc.Loading(
             id="loading-2",
@@ -149,7 +150,7 @@ def update_map_from_dropdown1(selected_municipio, selected_tema, checkbox_value,
 
     if (selected_municipio is None)or(selected_municipio == 'Todos os Municípios'):
         filtered_df_2 = filtered_df
-        zoom = 4.8 if width_flag > 0 else 4.8
+        zoom = 4.8
         offset = 0.8
         args = [zoom, offset]
     elif selected_municipio in controller.get_cities_list():
@@ -206,7 +207,7 @@ def update_map_from_dropdown2(selected_municipio, selected_tema, checkbox_value,
 
     if (selected_municipio is None)or(selected_municipio == 'Todos os Municípios'):
         filtered_df_2 = filtered_df
-        zoom = 4.8 if width_flag > 0 else 4.8
+        zoom = 4.8
         offset = 0.8
         args = [zoom, offset]
     elif selected_municipio in controller.get_cities_list():
@@ -261,7 +262,7 @@ def update_map_from_dropdown3(selected_municipio, selected_tema, checkbox_value,
 
     if (selected_municipio is None)or(selected_municipio == 'Todos os Municípios'):
         filtered_df_2 = filtered_df
-        zoom = 4.8 if width_flag > 0 else 4.8
+        zoom = 4.8
         offset = 0.8
         args = [zoom, offset]
     elif selected_municipio in controller.get_cities_list():
@@ -317,7 +318,7 @@ def update_map_from_dropdown4(selected_municipio, selected_tema, checkbox_value,
 
     if (selected_municipio is None)or(selected_municipio == 'Todos os Municípios'):
         filtered_df_2 = filtered_df
-        zoom = 4.8 if width_flag > 0 else 4.8
+        zoom = 4.8
         offset = 0.8
         args = [zoom, offset]
     elif selected_municipio in controller.get_cities_list():
